@@ -1,4 +1,5 @@
 
+from encode import b64_decode, b64_encode
 
 def int2str(integer: int) -> str:
     """return an ascii string"""
@@ -39,3 +40,40 @@ def bytes2str(bytes_str: bytes, encoding: str='utf-8', errors: str='strict') -> 
 
 def str2bytes(string: str, encoding: str='utf-8') -> bytes:
     return bytes(string, encoding=encoding)
+
+
+from typing import SupportsBytes
+class Integer(int, SupportsBytes):
+
+    __slots__ = ()
+
+    @classmethod
+    def from_str(cls, string: str):
+        return cls(str2int(string))
+
+    @classmethod
+    def from_hex(cls, hex_string: str):
+        return cls(hex2int(hex_string))
+
+    @classmethod
+    def from_bytes(cls, bytes_string: bytes, byteorder: str='big', *, signed: bool = ...):
+        return cls(bytes2int(bytes_string, byteorder))
+
+    @classmethod
+    def from_b64(cls, bytes_string: bytes):
+        return cls.from_bytes(b64_decode(bytes_string))
+
+    def hex(self) -> str:
+        return hex(self)[2:]
+
+    def bin(self) -> str:
+        return bin(self)[2:]
+
+    def b64(self) -> bytes:
+        return b64_encode(bytes(self))
+
+    def __str__(self):
+        return int2str(self)
+
+    def __bytes__(self, byteorder='big'):
+        return int2bytes(self, byteorder)

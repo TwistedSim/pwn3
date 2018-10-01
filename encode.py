@@ -1,7 +1,6 @@
-import string
+
 import warnings
 
-from conversion import bytes2hex, hex2str
 from modular import lcm, modinv
 import base64
 from string import ascii_lowercase

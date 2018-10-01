@@ -19,10 +19,6 @@ def modinv(a: int, m: int) -> int:
         return x % m
 
 def gcd(a, b):
-    """ compute the greatest common divisor of a and b"""
-    return gcd(b % a, a) if a != 0 else b
-
-def gcd2(a, b):
     while b > 0:
         a, b = b, a % b
     return a
