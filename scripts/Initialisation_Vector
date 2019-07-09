@@ -1,0 +1,73 @@
+"""
+
+### STATEMENT ###
+
+The Initialisation Vector has been lost, we unfortunately just found a ciphertext. It’s up to you to find this lost IV using this information. The text was encrypted using AES-256 CBC, and the padding used is PKCS#7 standard.
+
+
+### PLAINTEXT ###
+
+Marvin: "I am at a rough estimate thirty billion times more intelligent than you. Let me give you an example. Think of a number, any number."
+Zem: "Er, five."
+Marvin: "Wrong. You see?"
+
+4d617276696e3a20224920616d206174
+206120726f75676820657374696d6174
+65207468697274792062696c6c696f6e
+2074696d6573206d6f726520696e7465
+6c6c6967656e74207468616e20796f75
+2e204c6574206d65206769766520796f
+7520616e206578616d706c652e205468
+696e6b206f662061206e756d6265722c
+
+
+### CIPHER ###
+
+cY1Y1VPXbhUqzYLIOVR0RhUXD5l+dmymBfr1vIKlyqD8KqHUUp2I3dhFXgASdGWzRhOdTj8WWFTJPK0k/GDEVUBDCk1MiB8rCmTZluVHImczlOXEwJSUEgwDHA6AbiCwyAU58e9j9QbN+HwEm1TPKHQ6JrIOpdFWoYjS+cUCZfo/85Lqi26Gj7JJxCDF8PrBp/EtHLmmTmaAVWS0ID2cJpdmNDl54N7tg5TFTrdtcIplc1tDvoCLFPEomNa5booC
+
+718d58d553d76e152acd82c839547446
+15170f997e766ca605faf5bc82a5caa0
+fc2aa1d4529d88ddd8455e00127465b3
+46139d4e3f165854c93cad24fc60c455
+40430a4d4c881f2b0a64d996e5472267
+3394e5c4c09494120c031c0e806e20b0
+c80539f1ef63f506cdf87c049b54cf28
+743a26b20ea5d156a188d2f9c50265fa
+3ff392ea8b6e868fb249c420c5f0fac1
+a7f12d1cb9a64e66805564b4203d9c26
+9766343979e0deed8394c54eb76d708a
+65735b43be808b14f12898d6b96e8a02
+
+
+### KEY ###
+
+AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRqrHB0eHyA=
+
+0102030405060708090a0b0c0d0e0f101112131415161718191aab1c1d1e1f20
+
+
+### ANALYSIS ###
+
+First block:  IV xor Plaintext[0] --AES(key)--> Cipher[0]
+              IV xor 4d617276696e3a20224920616d206174 --AES(key)--> 718d58d553d76e152acd82c839547446
+
+Decode Cipher[0] with key:
+xor decoded bytes with PlainText[0] -> IV
+
+"""
+
+from Crypto.Cipher import AES
+from base64 import b64decode
+
+BLOCK_SIZE = 32 # bytes
+
+key = b64decode(b'AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRqrHB0eHyA=')
+cipher = b64decode(b'cY1Y1VPXbhUqzYLIOVR0RhUXD5l+dmymBfr1vIKlyqD8KqHUUp2I3dhFXgASdGWzRhOdTj8WWFTJPK0k/GDEVUBDCk1MiB8rCmTZluVHImczlOXEwJSUEgwDHA6AbiCwyAU58e9j9QbN+HwEm1TPKHQ6JrIOpdFWoYjS+cUCZfo/85Lqi26Gj7JJxCDF8PrBp/EtHLmmTmaAVWS0ID2cJpdmNDl54N7tg5TFTrdtcIplc1tDvoCLFPEomNa5booC')
+plaintext = bytes('Marvin: "I am at', encoding='ascii')
+
+encoder = AES.new(key, AES.MODE_ECB)
+decoded_cipher = encoder.decrypt(cipher[:BLOCK_SIZE])
+
+iv = bytes(dc^pt for dc,pt in zip(decoded_cipher, plaintext[:BLOCK_SIZE]))
+
+print(iv.decode('ascii'))
